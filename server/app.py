@@ -164,20 +164,60 @@ def dashboard():
     return render_template('dashboard.html', budget=budget, remaining_budget=remaining_budget, expenses=expenses, recommendations=recommendations)
 
 
-@app.route('/add_expense', methods=['POST'])
+@app.route('/add-expense', methods=['POST'])
 def add_expense():
-    if 'user_id' in session:
-        salary = request.form['salary']
-        budget = request.form['budget']
-        category = request.form['category']
-        item = request.form['item']
-        amount = request.form['amount']
-        date = request.form['date']
-        description = request.form['description']
-        cursor.execute('INSERT INTO expenses (user_id, salary, budget, category, item, amount, date, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                       (session['user_id'], salary, budget, category, item, amount, date, description))
-        conn.commit()
-    return redirect(url_for('dashboard'))
+    data = request.get_json()
+
+    user_id = data.get('userId')
+    category = data.get('category')
+    item = data.get('item')
+    amount = data.get('amount')
+    date = data.get('date')
+    description = data.get('description')
+
+    insert_query = "INSERT INTO expenses (user_id, category, item, amount, date, description) VALUES (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(insert_query, (user_id, category, item, amount, date, description))
+    conn.commit()  # Save the changes
+
+    return jsonify({"message": "Added Expense successfully" }), 201
+
+# @app.route('/add-expense', methods=['POST'])
+# def add_expense():
+#     if 'user_id' in session:
+#         category = request.form['category']
+#         item = request.form['item']
+#         amount = request.form['amount']
+#         date = request.form['date']
+#         description = request.form['description']
+#         cursor.execute('INSERT INTO expenses (user_id, salary, budget, category, item, amount, date, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+#                        (session['user_id'], salary, budget, category, item, amount, date, description))
+#         conn.commit()
+#     return redirect(url_for('dashboard'))
+
+@app.route('/get-expenses', methods=['GET'])
+def get_expenses():
+    try:
+        cursor.execute("SELECT id, category, item, amount, date, description FROM expenses")
+        rows = cursor.fetchall()
+
+        # Convert the result into a list of dictionaries
+        expenses = []
+        for row in rows:
+            expenses.append({
+                "id": row[0],
+                "category": row[1],
+                "item": row[2],
+                "amount": row[3],
+                "date": row[4].strftime('%Y-%m-%d') if hasattr(row[4], 'strftime') else row[4],
+                "description": row[5]
+            })
+
+        return jsonify(expenses), 200
+
+    except Exception as e:
+        print("Error fetching expenses:", e)
+        return jsonify({"message": "Failed to fetch expenses"}), 500
+
 
 @app.route('/visualize')
 def visualize():
