@@ -25,8 +25,13 @@ const Expense = () => {
     if (userIdLocal) {
       setUserId(userIdLocal);
     }
-    fetchExpenses();
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchExpenses();
+    }
+  }, [userId]);
 
   const addExpense = async (e) => {
     e.preventDefault();
@@ -63,7 +68,7 @@ const Expense = () => {
 
   const fetchExpenses = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/get-expenses');
+      const response = await fetch('http://127.0.0.1:5000/get-expenses/'+userId);
       const data = await response.json();
       setExpenses(data);
     } catch (error) {

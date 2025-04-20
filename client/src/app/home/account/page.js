@@ -8,7 +8,7 @@ const Account = () => {
   const [user, setUser] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [dob, setDob] = useState(new Date());
+  const [dob, setDob] = useState(null);
   const [gender, setGender] = useState('');
 
   useEffect(() => {
@@ -80,18 +80,19 @@ const Account = () => {
   };
 
   const setDateFormat = (dateStr) => {
-    console.log(dateStr);
-
+    if (!dateStr) return '';
+  
     const date = new Date(dateStr);
-
+  
+    if (isNaN(date.getTime())) return '';
+  
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-
+  
     const formattedDate = `${year}-${month}-${day}`;
-    console.log(formattedDate);
     return formattedDate;
-  }
+  };
 
 
   return (
@@ -116,7 +117,7 @@ const Account = () => {
           <div className="mb-5">
             <label htmlFor="dob" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your date of birth</label>
             <input type="date" id="dob"
-              value={setDateFormat(user?.dob)}
+              value={setDateFormat(user?.dob ? user.dob : dob)}
               onChange={(e) => setDob(e.target.value)}
               className="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" />
           </div>
@@ -124,14 +125,14 @@ const Account = () => {
             <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">You gender</label>
             <div className="flex items-center mb-4">
               <input id="default-radio-1" type="radio" value="male" name="gender"
-                checked={user?.gender === 'male'}
+                checked={user?.gender === 'male' || gender === 'male'}
                 onChange={handleGenderChange}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
               <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Male</label>
             </div>
             <div className="flex items-center">
               <input id="default-radio-2" type="radio" value="female" name="gender"
-                checked={user?.gender === 'female'}
+                checked={user?.gender === 'female' || gender === 'female'}
                 onChange={handleGenderChange}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
               <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Female</label>

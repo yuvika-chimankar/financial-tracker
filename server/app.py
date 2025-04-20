@@ -234,10 +234,10 @@ def add_expense():
 #         conn.commit()
 #     return redirect(url_for('dashboard'))
 
-@app.route('/get-expenses', methods=['GET'])
-def get_expenses():
+@app.route('/get-expenses/<user_id>', methods=['GET'])
+def get_expenses(user_id):
     try:
-        cursor.execute("SELECT id, category, item, amount, date, description FROM expenses")
+        cursor.execute("SELECT id, category, item, amount, date, description FROM expenses where user_id = %s", (user_id,))
         rows = cursor.fetchall()
 
         # Convert the result into a list of dictionaries

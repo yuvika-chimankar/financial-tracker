@@ -168,6 +168,7 @@ const Home = () => {
                   </div>
                   {isEditingBudget ? (
                     <input
+                      type='number'
                       ref={budgetRef}
                       className="text-2xl border border-gray-300 rounded px-2 py-1 mt-2 w-full"
                       value={budget}
