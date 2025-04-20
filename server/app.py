@@ -114,6 +114,46 @@ def login():
 #     expenses = cursor.fetchall()
 #     return render_template('dashboard.html', expenses=expenses)
 
+# Get user
+@app.route('/account/<user_id>', methods=['GET'])
+def get_user(user_id):
+    print('User Id ' + user_id)
+    query = "SELECT * FROM users WHERE id = %s"
+    cursor.execute(query, (user_id,))
+    user = cursor.fetchone()
+
+    if user:
+        return jsonify({
+            "id": user[0],
+            "name": user[1],
+            "email": user[2],
+            "dob": user[4],
+            "gender": user[5]
+        })
+    else:
+        return jsonify({"message": "User not found"}), 404
+
+# Update User
+@app.route('/update-account/<user_id>', methods=['PUT'])
+def update_user(user_id):
+    data = request.get_json()
+
+    name = data.get('name')
+    email = data.get('email')
+    dob = data.get('dob')
+    gender = data.get('gender')
+
+    update_query = """
+        UPDATE users
+        SET dob = %s, gender = %s
+        WHERE id = %s
+    """
+    cursor.execute(update_query, (dob, gender, user_id))
+    conn.commit()
+
+    return jsonify({"message": "User updated successfully"}), 200
+
+
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
@@ -219,6 +259,72 @@ def get_expenses():
         return jsonify({"message": "Failed to fetch expenses"}), 500
 
 
+@app.route('/update-salary', methods=['PATCH'])
+def update_salary():
+    data = request.get_json()
+    user_id = data.get('userId')
+    salary = data.get('salary')
+
+    if not user_id or salary is None:
+        return jsonify({'message': 'Missing userId or salary'}), 400
+
+    # Check if income entry exists for this user
+    cursor.execute("SELECT * FROM income WHERE user_id = %s", (user_id,))
+    existing_income = cursor.fetchone()
+
+    if existing_income:
+        # Update salary
+        update_query = "UPDATE income SET salary = %s WHERE user_id = %s"
+        cursor.execute(update_query, (salary, user_id))
+    else:
+        # Insert new row with default budget 0
+        insert_query = "INSERT INTO income (user_id, salary, budget) VALUES (%s, %s, %s)"
+        cursor.execute(insert_query, (user_id, salary, 0.0))
+
+    conn.commit()
+    return jsonify({'message': 'Salary updated successfully'}), 200
+
+
+@app.route('/update-budget', methods=['PATCH'])
+def update_budget():
+    data = request.get_json()
+    user_id = data.get('userId')
+    budget = data.get('budget')
+
+    if not user_id or budget is None:
+        return jsonify({'message': 'Missing userId or budget'}), 400
+
+    # Check if income entry exists for this user
+    cursor.execute("SELECT * FROM income WHERE user_id = %s", (user_id,))
+    existing_income = cursor.fetchone()
+
+    if existing_income:
+        # Update budget
+        update_query = "UPDATE income SET budget = %s WHERE user_id = %s"
+        cursor.execute(update_query, (budget, user_id))
+    else:
+        # Insert new row with default budget 0
+        insert_query = "INSERT INTO income (user_id, budget, salary) VALUES (%s, %s, %s)"
+        cursor.execute(insert_query, (user_id, budget, 0.0))
+
+    conn.commit()
+    return jsonify({'message': 'Budget updated successfully'}), 200
+
+
+@app.route('/get-income', methods=['POST'])
+def get_income():
+    data = request.get_json()
+    user_id = data.get('userId')
+    cursor.execute("SELECT salary, budget FROM income WHERE user_id = %s", (user_id,))
+    income_data = cursor.fetchone()
+
+    if income_data:
+        salary, budget = income_data
+        return jsonify({'salary': salary, 'budget': budget}), 200
+    else:
+        return jsonify({'message': 'Income details not found for this user'}), 404
+
+
 @app.route('/visualize')
 def visualize():
     if 'user_id' not in session:
@@ -237,10 +343,10 @@ def visualize():
 
     return render_template('visualization.html', chart='static/expense_chart.png')
 
-@app.route('/logout')
-def logout():
-    session.pop('user_id', None)
-    return redirect(url_for('home'))
+# @app.route('/logout')
+# def logout():
+#     session.pop('user_id', None)
+#     return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
