@@ -25,10 +25,66 @@ const Dashboard = () => {
     }
   }, [userId]);
 
+  // useEffect(() => {
+  //   // Trigger the backend to generate the chart
+  //   if(userId) {
+  //     fetch('http://127.0.0.1:5000/pie-chart', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ userId }),
+  //     })
+  //       .then(async res => {
+  //         console.log(res);
+  //         const data = await res.json();
+  //         if (res.ok) {
+  //           console.log(data);
+            
+  //           // Set the chart image URL
+  //           setPieChartUrl('http://127.0.0.1:5000'+data.chart_url);
+  //         } else {
+  //           console.error('Failed to generate visualization');
+  //         }
+  //       })
+  //       .catch(err => console.error(err));
+
+  //   }
+  // }, [userId]);
+
+  // useEffect(() => {
+  //   // Trigger the backend to generate the chart
+  //   if(userId) {
+  //     fetch('http://127.0.0.1:5000/bar-chart', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ userId }),
+  //     })
+  //       .then(async res => {
+  //         console.log(res);
+  //         const data = await res.json();
+  //         if (res.ok) {
+  //           console.log(data);
+            
+  //           // Set the chart image URL
+  //           setBarChartUrl('http://127.0.0.1:5000'+data.chart_url);
+  //         } else {
+  //           console.error('Failed to generate visualization');
+  //         }
+  //       })
+  //       .catch(err => console.error(err));
+
+  //   }
+  // }, [userId]);
+
+
+
   useEffect(() => {
     // Trigger the backend to generate the chart
     if(userId) {
-      fetch('http://127.0.0.1:5000/pie-chart', {
+      fetch('http://127.0.0.1:5000/charts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,9 +96,9 @@ const Dashboard = () => {
           const data = await res.json();
           if (res.ok) {
             console.log(data);
-            
             // Set the chart image URL
-            setPieChartUrl('http://127.0.0.1:5000'+data.chart_url);
+            setPieChartUrl('http://127.0.0.1:5000'+data.pie_chart_url);
+            setBarChartUrl('http://127.0.0.1:5000'+data.bar_chart_url);
           } else {
             console.error('Failed to generate visualization');
           }
@@ -52,32 +108,6 @@ const Dashboard = () => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    // Trigger the backend to generate the chart
-    if(userId) {
-      fetch('http://127.0.0.1:5000/bar-chart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId }),
-      })
-        .then(async res => {
-          console.log(res);
-          const data = await res.json();
-          if (res.ok) {
-            console.log(data);
-            
-            // Set the chart image URL
-            setBarChartUrl('http://127.0.0.1:5000'+data.chart_url);
-          } else {
-            console.error('Failed to generate visualization');
-          }
-        })
-        .catch(err => console.error(err));
-
-    }
-  }, [userId]);
 
   // useEffect(() => {
   //   // Trigger the backend to generate the chart
@@ -168,20 +198,20 @@ const Dashboard = () => {
         </section>
 
         <div className='charts'>
-          <h1 className='text-lg font-semibold'>Charts</h1>
-          {pieChartUrl ? (
+          <h1 className='text-lg font-semibold mb-8'>Charts</h1>
+          <div className='flex mb-8'>
+          <div className='me-8'>{pieChartUrl ? (
             <img src={pieChartUrl} alt="Pie Chart" style={{ width: '100%', maxWidth: '500px' }} />
           ) : (
             <p>Loading chart...</p>
-          )}
-          <hr />
+          )}</div>
+          <br />
           {barChartUrl ? (
             <img src={barChartUrl} alt="Bar Chart" style={{ width: '100%', maxWidth: '500px' }} />
           ) : (
             <p>Loading chart...</p>
           )}
-
-<hr />
+</div>
           {/* {lineChartUrl ? (
             <img src={lineChartUrl} alt="line Chart" style={{ width: '100%', maxWidth: '500px' }} />
           ) : (

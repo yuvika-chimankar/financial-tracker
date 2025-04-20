@@ -409,8 +409,8 @@ def get_recommendations(user_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/pie-chart', methods=['POST'])
-def pie_chart():
+# @app.route('/pie-chart', methods=['POST'])
+# def pie_chart():
     try:
         conn1 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
         cursor1 = conn1.cursor()
@@ -449,51 +449,130 @@ def pie_chart():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/bar-chart', methods=['POST'])
-def bar_chart():
+# @app.route('/bar-chart', methods=['POST'])
+# def bar_chart():
+#     try:
+#         conn2 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
+#         cursor2 = conn2.cursor()
+#         data = request.get_json()
+#         user_id = data.get('userId')
+
+#         if not user_id:
+#             return jsonify({'error': 'User ID is required'}), 400
+
+#         cursor2.execute('''
+#         SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) 
+#         FROM expenses 
+#         WHERE user_id = %s 
+#         GROUP BY month 
+#         ORDER BY month
+#         ''', (user_id,))
+#         result = cursor2.fetchall()
+#         # print("DB Result:", result)
+
+#         months = [row[0] for row in result]
+#         expenses = [row[1] for row in result]
+
+#         plt.figure(figsize=(10, 6))
+#         plt.bar(months, expenses, color='skyblue')
+#         plt.xlabel('Month')
+#         plt.ylabel('Total Expenses (₹)')
+#         plt.title('Monthly Expense Overview')
+#         plt.xticks(rotation=45)
+#         plt.tight_layout()
+
+#         os.makedirs('static', exist_ok=True)
+#         chart_path = 'static/bar_chart-'+user_id+'.png'
+#         plt.savefig(chart_path)
+#         plt.close()
+
+#         # Step 4: Close connection
+#         cursor2.close()
+#         conn2.close()
+
+#         return jsonify({'chart_url': '/static/bar_chart-'+user_id+'.png'})
+
+#     except Exception as e:
+#         # print("Error:", e)
+#         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/charts', methods=['POST'])
+def generate_charts():
     try:
-        conn2 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
-        cursor2 = conn2.cursor()
+        # Step 1: Connect to DB
+        conn1 = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='sHj@6378#jw',
+            database='finance_db_1',
+            ssl_disabled=True
+        )
+        cursor1 = conn1.cursor()
         data = request.get_json()
         user_id = data.get('userId')
 
         if not user_id:
             return jsonify({'error': 'User ID is required'}), 400
 
-        cursor2.execute('''
-        SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) 
-        FROM expenses 
-        WHERE user_id = %s 
-        GROUP BY month 
-        ORDER BY month
-        ''', (user_id,))
-        result = cursor2.fetchall()
-        # print("DB Result:", result)
-
-        months = [row[0] for row in result]
-        expenses = [row[1] for row in result]
-
-        plt.figure(figsize=(10, 6))
-        plt.bar(months, expenses, color='skyblue')
-        plt.xlabel('Month')
-        plt.ylabel('Total Expenses (₹)')
-        plt.title('Monthly Expense Overview')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-
         os.makedirs('static', exist_ok=True)
-        chart_path = 'static/bar_chart-'+user_id+'.png'
-        plt.savefig(chart_path)
-        plt.close()
 
-        # Step 4: Close connection
-        cursor2.close()
-        conn2.close()
+        ### ---------- PIE CHART: Expense Distribution by Category ----------
+        cursor1.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category', (user_id,))
+        pie_data = cursor1.fetchall()
 
-        return jsonify({'chart_url': '/static/bar_chart-'+user_id+'.png'})
+        if pie_data and any(len(row) >= 2 for row in pie_data):
+            categories = [row[0] for row in pie_data if row and len(row) > 1]
+            amounts = [row[1] for row in pie_data if row and len(row) > 1]
+
+            plt.figure(figsize=(8, 6))
+            plt.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=140)
+            plt.title('Expense Distribution')
+            pie_path = f'static/expense_chart-{user_id}.png'
+            plt.savefig(pie_path)
+            plt.close()
+        else:
+            pie_path = None
+
+        ### ---------- BAR CHART: Monthly Expense ----------
+        cursor1.execute('''
+            SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) 
+            FROM expenses 
+            WHERE user_id = %s 
+            GROUP BY month 
+            ORDER BY month
+        ''', (user_id,))
+        bar_data = cursor1.fetchall()
+
+        if bar_data:
+            months = [row[0] for row in bar_data]
+            expenses = [row[1] for row in bar_data]
+
+            plt.figure(figsize=(10, 6))
+            plt.bar(months, expenses, color='skyblue')
+            plt.xlabel('Month')
+            plt.ylabel('Total Expenses (₹)')
+            plt.title('Monthly Expense Overview')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+
+            bar_path = f'static/bar_chart-{user_id}.png'
+            plt.savefig(bar_path)
+            plt.close()
+        else:
+            bar_path = None
+
+        # Step 3: Close connection
+        cursor1.close()
+        conn1.close()
+
+        # Step 4: Return both chart URLs
+        return jsonify({
+            'pie_chart_url': f'/{pie_path}' if pie_path else None,
+            'bar_chart_url': f'/{bar_path}' if bar_path else None
+        })
 
     except Exception as e:
-        # print("Error:", e)
         return jsonify({'error': str(e)}), 500
 
 
