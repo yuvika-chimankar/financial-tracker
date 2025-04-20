@@ -9,6 +9,7 @@ const Home = () => {
   const [salary, setSalary] = useState(0);
   const [budget, setBudget] = useState(0);
   const [userId, setUserId] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
 
   const salaryRef = useRef(null);
   const budgetRef = useRef(null);
@@ -46,6 +47,22 @@ const Home = () => {
     }
   };
 
+  const fetchRecommendations = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:5000/recommendations/'+userId);
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log('Recommendations:', data);
+        setRecommendations(data.recommendations);
+      } else {
+        console.error(data.message);
+      }
+    } catch (err) {
+      console.error('Failed to fetch income:', err.message);
+    }
+  }
+
 
   useEffect(() => {
     const userIdLocal = localStorage.getItem('user_id');
@@ -57,6 +74,12 @@ const Home = () => {
   useEffect(() => {
     if (userId) {
       fetchIncome();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchRecommendations();
     }
   }, [userId]);
 
@@ -185,17 +208,13 @@ const Home = () => {
         </section>
 
         <h1 className='mb-2 text-lg font-semibold text-gray-900 dark:text-white'>Recommendations</h1>
-        <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
-            <li>
-                At least 10 characters (and up to 100 characters)
-            </li>
-            <li>
-                At least one lowercase character
-            </li>
-            <li>
-                Inclusion of at least one special character, e.g., ! @ # ?
-            </li>
-        </ul>
+        {recommendations.map((recommendation, index) => (
+          <ul class="space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400" key={index}>
+              <li>
+                  {recommendation}
+              </li>
+          </ul>
+        ))}
 
       </div>
 

@@ -119,7 +119,7 @@ def login():
 # Get user
 @app.route('/account/<user_id>', methods=['GET'])
 def get_user(user_id):
-    print('User Id ' + user_id)
+    # print('User Id ' + user_id)
     query = "SELECT * FROM users WHERE id = %s"
     cursor.execute(query, (user_id,))
     user = cursor.fetchone()
@@ -258,7 +258,7 @@ def get_expenses(user_id):
         return jsonify(expenses), 200
 
     except Exception as e:
-        print("Error fetching expenses:", e)
+        # print("Error fetching expenses:", e)
         return jsonify({"message": "Failed to fetch expenses"}), 500
 
 # Update salary 
@@ -350,52 +350,67 @@ def get_remaining_budget():
         return jsonify({'message': 'Income details not found for this user'}), 404
 
 # Get recommendations 
-# @app.route('/recommendations/<user_id>', methods=['GET'])
-# def get_recommendations(user_id):
-#     try:
-#         user_id = int(user_id)  # Ensure it's an integer
+@app.route('/recommendations/<user_id>', methods=['GET'])
+def get_recommendations(user_id):
+    try:
+        conn4 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
+        cursor4 = conn4.cursor()
 
-#         cursor.execute("SELECT salary, budget FROM income WHERE user_id = %s", (user_id,))
-#         income_data = cursor.fetchone()
+        user_id = int(user_id)  # Ensure it's an integer
 
-#         if income_data:
-#             salary, budget = income_data
+        cursor4.execute("SELECT salary, budget FROM income WHERE user_id = %s", (user_id,))
+        income_data = cursor4.fetchone()
+
+        if income_data:
+            salary, budget = income_data
             
-#             # Calculate total expenses
-#             # cursor.execute('SELECT SUM(amount) FROM expenses WHERE user_id=%s', (user_id,))
-#             # total_expenses_result = cursor.fetchone()
-#             # total_expenses = total_expenses_result[0] if total_expenses_result and total_expenses_result[0] else 0
+            # Calculate total expenses
+            cursor4.execute('SELECT SUM(amount) FROM expenses WHERE user_id=%s', (user_id,))
+            total_expenses_result = cursor4.fetchone()
+            total_expenses = total_expenses_result[0] if total_expenses_result and total_expenses_result[0] else 0
             
-#             # Calculate remaining budget
-#             # remaining_budget = budget - total_expenses
+            # Calculate remaining budget
+            remaining_budget = budget - total_expenses
 
-#             # Find the category with the highest spending
-#             # cursor.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1', (user_id,))
-#             # top_category = cursor.fetchone()
-#             # highest_spending_category = top_category[0] if top_category else None
-#             # highest_spending_amount = top_category[1] if top_category else 0
+            # Find the category with the highest spending
+            cursor4.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1', (user_id,))
+            top_category = cursor4.fetchone()
+            highest_spending_category = top_category[0] if top_category else None
+            highest_spending_amount = top_category[1] if top_category else 0
 
+            # print('total_expenses')
+            # print(total_expenses)
+            # print('remaining_budget')
+            # print(remaining_budget)
+            # print('highest_spending_category')
+            # print(highest_spending_category)
+            # print("highest_spending_amount")
+            # print(highest_spending_amount)
 
-#             recommendations = []
+            recommendations = []
 
-#             # if remaining_budget > (0.3 * budget):  # If more than 30% of budget is left
-#             #     recommendations.append("✅ You have a good amount left in your budget! Consider saving or investing in mutual funds, stocks, or an emergency fund.")
+            if remaining_budget > (0.3 * budget):  # If more than 30% of budget is left
+                recommendations.append("You have a good amount left in your budget! Consider saving or investing in mutual funds, stocks, or an emergency fund.")
 
-#             # if remaining_budget < 0:  # If budget is exceeded
-#             #     recommendations.append("⚠️ You have exceeded your budget! Try to cut down on unnecessary expenses like dining out or impulse shopping.")
+            if remaining_budget < 0:  # If budget is exceeded
+                recommendations.append("You have exceeded your budget! Try to cut down on unnecessary expenses like dining out or impulse shopping.")
 
-#             # if highest_spending_category and total_expenses > 0 and highest_spending_amount > (0.5 * total_expenses):
-#             #     recommendations.append(f"🔍 You are spending a lot on {highest_spending_category}. Consider reducing these expenses to balance your budget.")
+            if highest_spending_category and total_expenses > 0 and highest_spending_amount > (0.5 * total_expenses):
+                recommendations.append(f"You are spending a lot on {highest_spending_category}. Consider reducing these expenses to balance your budget.")
 
-#             return jsonify({'recommendations': recommendations}), 200
-#         else:
-#             return jsonify({'message': 'Income details not found for this user'}), 404
+            # Step 4: Close connection
+            cursor4.close()
+            conn4.close()
 
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
+            return jsonify({'recommendations': recommendations}), 200
+        else:
+            return jsonify({'message': 'Income details not found for this user'}), 404
 
-@app.route('/visualize', methods=['POST'])
-def visualize():
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/pie-chart', methods=['POST'])
+def pie_chart():
     try:
         conn1 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
         cursor1 = conn1.cursor()
@@ -407,7 +422,7 @@ def visualize():
 
         cursor1.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category',(user_id,))
         result = cursor1.fetchall()
-        print("DB Result:", result)
+        # print("DB Result:", result)
 
         if not result or all(len(row) < 2 for row in result):
             return jsonify({'error': 'No expense data found for this user'}), 404
@@ -430,10 +445,115 @@ def visualize():
         return jsonify({'chart_url': '/static/expense_chart-'+user_id+'.png'})
 
     except Exception as e:
-        print("Error:", e)
+        # print("Error:", e)
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/bar-chart', methods=['POST'])
+def bar_chart():
+    try:
+        conn2 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
+        cursor2 = conn2.cursor()
+        data = request.get_json()
+        user_id = data.get('userId')
+
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+
+        cursor2.execute('''
+        SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) 
+        FROM expenses 
+        WHERE user_id = %s 
+        GROUP BY month 
+        ORDER BY month
+        ''', (user_id,))
+        result = cursor2.fetchall()
+        # print("DB Result:", result)
+
+        months = [row[0] for row in result]
+        expenses = [row[1] for row in result]
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(months, expenses, color='skyblue')
+        plt.xlabel('Month')
+        plt.ylabel('Total Expenses (₹)')
+        plt.title('Monthly Expense Overview')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        os.makedirs('static', exist_ok=True)
+        chart_path = 'static/bar_chart-'+user_id+'.png'
+        plt.savefig(chart_path)
+        plt.close()
+
+        # Step 4: Close connection
+        cursor2.close()
+        conn2.close()
+
+        return jsonify({'chart_url': '/static/bar_chart-'+user_id+'.png'})
+
+    except Exception as e:
+        # print("Error:", e)
+        return jsonify({'error': str(e)}), 500
+
+
+
+# @app.route('/line-chart', methods=['POST'])
+# def line_chart():
+#     try:
+#         conn3 = mysql.connector.connect(host='localhost', user='root', 
+#                       password='sHj@6378#jw', database='finance_db_1', ssl_disabled=True)
+#         cursor3 = conn3.cursor()
+#         data = request.get_json()
+#         user_id = data.get('userId')
+
+#         if not user_id:
+#             return jsonify({'error': 'User ID is required'}), 400
+
+#         # Get dates as strings in YYYY-MM-DD format directly from DB
+#         cursor3.execute('''
+#             SELECT DATE_FORMAT(date, '%Y-%m') AS date_str, SUM(amount) as total_amount
+#             FROM expenses 
+#             WHERE user_id = %s 
+#             GROUP BY date 
+#             ORDER BY date
+#         ''', (user_id,))
+#         result = cursor3.fetchall()
+        
+#         if not result:
+#             return jsonify({'error': 'No data available for this user'}), 404
+
+#         # Extract dates (as strings) and amounts
+#         date_strings = [row[0] for row in result]
+#         expenses = [float(row[1]) for row in result]
+
+#         plt.figure(figsize=(12, 6))
+        
+#         # Plot using string dates directly
+#         plt.plot(date_strings, expenses, color='blue', marker='o', linestyle='-', linewidth=2, markersize=8)
+#         plt.xlabel('Date', fontsize=12)
+#         plt.ylabel('Expense Amount (₹)', fontsize=12)
+#         plt.title('Daily Expense Overview', fontsize=14, pad=20)
+        
+#         # Auto-format the x-axis labels
+#         plt.xticks(rotation=45, ha='right')  # Rotate labels for better readability
+#         plt.grid(True, linestyle='--', alpha=0.7)
+#         plt.tight_layout()  # Adjust layout to prevent label cutoff
+
+#         # Save the chart
+#         os.makedirs('static', exist_ok=True)
+#         chart_path = f'static/line_chart_{user_id}.png'
+#         plt.savefig(chart_path, dpi=100, bbox_inches='tight')
+#         plt.close()
+
+#         cursor3.close()
+#         conn3.close()
+
+#         return jsonify({'chart_url': f'/static/line_chart_{user_id}.png'})
+
+#     except Exception as e:
+#         print("Error:", e)
+#         return jsonify({'error': str(e)}), 500
 
 # @app.route('/logout')
 # def logout():
@@ -442,3 +562,8 @@ def visualize():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+[('2025-01-01', 7000.0), 
+('2025-01-02', 150.0), 
+('2025-01-05', 510.0), ('2025-01-12', 3000.0), ('2025-01-14', 200.0), ('2025-01-21', 120.0), ('2025-01-25', 3000.0), ('2025-04-01', 100.0), ('2025-04-07', 2000.0), ('2025-04-08', 500.0), ('2025-04-09', 150.0), ('2025-04-10', 10.0), ('2025-04-15', 100.0), ('2025-04-16', 100.0), ('2025-04-17', 2000.0), ('2025-04-18', 120.0), ('2025-04-24', 100.0)]

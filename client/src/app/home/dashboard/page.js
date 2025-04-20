@@ -8,7 +8,9 @@ const Dashboard = () => {
   const [salary, setSalary] = useState(0);
   const [budget, setBudget] = useState(0);
   const [remainingBudget, setRemainingBudget] = useState(0);
-  const [imageUrl, setImageUrl] = useState('');
+  const [pieChartUrl, setPieChartUrl] = useState('');
+  const [barChartUrl, setBarChartUrl] = useState('');
+  // const [lineChartUrl, setLineChartUrl] = useState('');
 
   useEffect(() => {
     const userIdLocal = localStorage.getItem('user_id');
@@ -26,7 +28,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Trigger the backend to generate the chart
     if(userId) {
-      fetch('http://127.0.0.1:5000/visualize', {
+      fetch('http://127.0.0.1:5000/pie-chart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +42,7 @@ const Dashboard = () => {
             console.log(data);
             
             // Set the chart image URL
-            setImageUrl('http://127.0.0.1:5000'+data.chart_url);
+            setPieChartUrl('http://127.0.0.1:5000'+data.chart_url);
           } else {
             console.error('Failed to generate visualization');
           }
@@ -49,6 +51,60 @@ const Dashboard = () => {
 
     }
   }, [userId]);
+
+  useEffect(() => {
+    // Trigger the backend to generate the chart
+    if(userId) {
+      fetch('http://127.0.0.1:5000/bar-chart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      })
+        .then(async res => {
+          console.log(res);
+          const data = await res.json();
+          if (res.ok) {
+            console.log(data);
+            
+            // Set the chart image URL
+            setBarChartUrl('http://127.0.0.1:5000'+data.chart_url);
+          } else {
+            console.error('Failed to generate visualization');
+          }
+        })
+        .catch(err => console.error(err));
+
+    }
+  }, [userId]);
+
+  // useEffect(() => {
+  //   // Trigger the backend to generate the chart
+  //   if(userId) {
+  //     fetch('http://127.0.0.1:5000/line-chart', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ userId }),
+  //     })
+  //       .then(async res => {
+  //         console.log(res);
+  //         const data = await res.json();
+  //         if (res.ok) {
+  //           console.log(data);
+            
+  //           // Set the chart image URL
+  //           setLineChartUrl('http://127.0.0.1:5000'+data.chart_url);
+  //         } else {
+  //           console.error('Failed to generate visualization');
+  //         }
+  //       })
+  //       .catch(err => console.error(err));
+
+  //   }
+  // }, [userId]);
 
   const fetchIncome = async () => {
     try {
@@ -112,12 +168,24 @@ const Dashboard = () => {
 
         <div className='charts'>
           <h1 className='text-lg'>Charts</h1>
-          <p>{imageUrl}</p>
-          {imageUrl ? (
-            <img src={imageUrl} alt="Expense Chart" style={{ width: '100%', maxWidth: '500px' }} />
+          {pieChartUrl ? (
+            <img src={pieChartUrl} alt="Pie Chart" style={{ width: '100%', maxWidth: '500px' }} />
           ) : (
             <p>Loading chart...</p>
           )}
+          <hr />
+          {barChartUrl ? (
+            <img src={barChartUrl} alt="Bar Chart" style={{ width: '100%', maxWidth: '500px' }} />
+          ) : (
+            <p>Loading chart...</p>
+          )}
+
+<hr />
+          {/* {lineChartUrl ? (
+            <img src={lineChartUrl} alt="line Chart" style={{ width: '100%', maxWidth: '500px' }} />
+          ) : (
+            <p>Loading chart...</p>
+          )} */}
         </div>
 
       </div>
