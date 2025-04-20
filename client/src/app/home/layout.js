@@ -8,9 +8,9 @@ export const metadata = {
 export default function HomeLayout({ children }) {
   return (
     <>
-        <div className="flex">
+        <div className="flex h-screen">
             <SideBar />
-            <div className="flex-1 ml-64">{children}</div>
+            <div className="flex-1 ml-64 bg-[#060a14]">{children}</div>
         </div>
     </>
   );

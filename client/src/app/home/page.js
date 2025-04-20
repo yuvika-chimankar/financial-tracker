@@ -130,16 +130,16 @@ const Home = () => {
   return (
     <>
       <div className='m-8'>
-        <h1 className='text-lg'>Home page</h1>
-        <section className="text-gray-600 body-font">
+        <h1 className='text-2xl font-bold'>Home</h1>
+        <section className="body-font">
           <div className="container mx-auto">
             <div className="flex flex-wrap">
               <div className="xl:w-1/3 md:w-1/2 p-4">
-                <div className="border border-gray-200 p-6 rounded-lg">
+                <div className="border border-sky-400 p-6 rounded-lg">
                   <div className="flex justify-between">
-                    <h3 className="text-base text-gray-900">Salary</h3>
+                    <h3 className="text-base">Salary</h3>
                     <svg
-                      className="w-6 h-6 text-gray-800 dark:text-white cursor-pointer"
+                      className="w-6 h-6 cursor-pointer"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -158,7 +158,7 @@ const Home = () => {
                     <input
                       type='number'
                       ref={salaryRef}
-                      className="text-2xl border border-gray-300 rounded px-2 py-1 mt-2 w-full"
+                      className="text-2xl border border-sky-400 rounded px-2 py-1 mt-2 w-full"
                       value={salary}
                       onChange={(e) => setSalary(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && setIsEditingSalary(false)}
@@ -170,11 +170,11 @@ const Home = () => {
               </div>
 
               <div className="xl:w-1/3 md:w-1/2 p-4">
-                <div className="border border-gray-200 p-6 rounded-lg">
+                <div className="border border-sky-400 p-6 rounded-lg">
                   <div className="flex justify-between">
-                    <h3 className="text-base text-gray-900">Budget</h3>
+                    <h3 className="text-base">Budget</h3>
                     <svg
-                      className="w-6 h-6 text-gray-800 dark:text-white cursor-pointer"
+                      className="w-6 h-6 cursor-pointer"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -193,7 +193,7 @@ const Home = () => {
                     <input
                       type='number'
                       ref={budgetRef}
-                      className="text-2xl border border-gray-300 rounded px-2 py-1 mt-2 w-full"
+                      className="text-2xl border border-sky-400 rounded px-2 py-1 mt-2 w-full"
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && setIsEditingBudget(false)}
@@ -207,9 +207,9 @@ const Home = () => {
           </div>
         </section>
 
-        <h1 className='mb-2 text-lg font-semibold text-gray-900 dark:text-white'>Recommendations</h1>
+        <h1 className='mb-2 text-lg font-semibold'>Recommendations</h1>
         {recommendations.map((recommendation, index) => (
-          <ul class="space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400" key={index}>
+          <ul class="space-y-1 text-gray-300 list-disc list-inside dark:text-gray-400" key={index}>
               <li>
                   {recommendation}
               </li>

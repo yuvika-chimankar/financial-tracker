@@ -84,17 +84,17 @@ const Expense = () => {
         <p>Expenses table</p> */}
 
 
-
+      <div className='bg-[#060a14]'>
       <div className="m-8">
         <div className='flex justify-between mb-8'>
-          <h1>Expense</h1>
-          <button onClick={handleOpen} className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-            Toggle modal
+          <h1 className='text-2xl font-bold'>Expense</h1>
+          <button onClick={handleOpen} className="rounded-full block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+            Add Expense
           </button>
         </div>
 
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mb-8">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" className="px-6 py-3">
@@ -115,8 +115,6 @@ const Expense = () => {
                 <th scope="col" className="px-6 py-3">
                   Description
                 </th>
-                <th scope="col" className="px-6 py-3">
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -130,7 +128,6 @@ const Expense = () => {
                 <td className="px-6 py-4">{expense.amount}</td>
                 <td className="px-6 py-4">{expense.date}</td>
                 <td className="px-6 py-4">{expense.description}</td>
-                <td className="px-6 py-4"><a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a></td>
               </tr>
               ))}
             </tbody>
@@ -208,7 +205,7 @@ const Expense = () => {
 
 
       </div>
-      
+      </div>
     </>
   )
 }

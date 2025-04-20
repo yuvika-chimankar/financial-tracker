@@ -132,32 +132,33 @@ const Dashboard = () => {
 
   return (
     <>
+    <div className='bg-[#060a14]'>
       <div className='m-8'>
-        <h1>Dashboard</h1>
+        <h1 className='text-2xl font-bold'>Dashboard</h1>
 
-        <section className="text-gray-600 body-font">
+        <section className=" body-font">
           <div className="container mx-auto">
             <div className="flex flex-wrap">
               <div className="xl:w-1/3 md:w-1/2 p-4">
-                <div className="border border-gray-200 p-6 rounded-lg">
+                <div className="border border-sky-400 p-6 rounded-lg">
                   <div className="flex justify-between">
-                    <h3 className="text-base text-gray-900">Salary</h3>
+                    <h3 className="text-base  ">Salary</h3>
                   </div>
                   <h2 className="text-2xl mt-2">{salary}</h2>
                 </div>
               </div>
               <div className="xl:w-1/3 md:w-1/2 p-4">
-                <div className="border border-gray-200 p-6 rounded-lg">
+                <div className="border border-sky-400 p-6 rounded-lg">
                   <div className="flex justify-between">
-                    <h3 className="text-base text-gray-900">Budget</h3>
+                    <h3 className="text-base  ">Budget</h3>
                   </div>
                   <h2 className="text-2xl mt-2">{budget}</h2>
                 </div>
               </div>
               <div className="xl:w-1/3 md:w-1/2 p-4">
-                <div className="border border-gray-200 p-6 rounded-lg">
+                <div className="border border-sky-400 p-6 rounded-lg">
                   <div className="flex justify-between">
-                    <h3 className="text-base text-gray-900">Remaining Budget</h3>
+                    <h3 className="text-base  ">Remaining Budget</h3>
                   </div>
                   <h2 className="text-2xl mt-2">{remainingBudget}</h2>
                 </div>
@@ -167,7 +168,7 @@ const Dashboard = () => {
         </section>
 
         <div className='charts'>
-          <h1 className='text-lg'>Charts</h1>
+          <h1 className='text-lg font-semibold'>Charts</h1>
           {pieChartUrl ? (
             <img src={pieChartUrl} alt="Pie Chart" style={{ width: '100%', maxWidth: '500px' }} />
           ) : (
@@ -189,7 +190,7 @@ const Dashboard = () => {
         </div>
 
       </div>
-
+      </div>
     </>
   )
 }

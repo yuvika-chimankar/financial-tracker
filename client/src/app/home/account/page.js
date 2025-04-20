@@ -98,47 +98,47 @@ const Account = () => {
   return (
     <>
       <div className='m-8'>
-        <h1>Account</h1>
+        <h1 className='text-2xl font-bold'>Account</h1>
         <form className="max-w-sm mx-auto" onSubmit={updateAccount}>
           <div className="mb-5">
-            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your name</label>
+            <label htmlFor="name" className="block mb-2 text-sm font-medium">Your name</label>
             <input type="text" id="name"
               value={user?.name}
               onChange={(e) => setName(e.target.value)}
-              className="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" required />
+              className="shadow-xs bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" required />
           </div>
           <div className="mb-5">
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
+            <label htmlFor="email" className="block mb-2 text-sm font-medium">Your email</label>
             <input type="email" id="email"
               value={user?.email}
               onChange={(e) => setEmail(e.target.value)}
-              className="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" required />
+              className="shadow-xs bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" required />
           </div>
           <div className="mb-5">
-            <label htmlFor="dob" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your date of birth</label>
+            <label htmlFor="dob" className="block mb-2 text-sm font-medium">Your date of birth</label>
             <input type="date" id="dob"
               value={setDateFormat(user?.dob ? user.dob : dob)}
               onChange={(e) => setDob(e.target.value)}
-              className="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" />
+              className="shadow-xs bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-xs-light" />
           </div>
           <div className="mb-5">
-            <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">You gender</label>
+            <label htmlFor="gender" className="block mb-2 text-sm font-medium">You gender</label>
             <div className="flex items-center mb-4">
               <input id="default-radio-1" type="radio" value="male" name="gender"
                 checked={user?.gender === 'male' || gender === 'male'}
                 onChange={handleGenderChange}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-              <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Male</label>
+              <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium  dark:text-gray-300">Male</label>
             </div>
             <div className="flex items-center">
               <input id="default-radio-2" type="radio" value="female" name="gender"
                 checked={user?.gender === 'female' || gender === 'female'}
                 onChange={handleGenderChange}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-              <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Female</label>
+              <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium  dark:text-gray-300">Female</label>
             </div>
           </div>
-          <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
+          <button type="submit" className="rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
         </form>
 
       </div>
