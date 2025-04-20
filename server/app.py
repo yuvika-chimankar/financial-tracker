@@ -345,7 +345,7 @@ def get_remaining_budget():
 
         remaining_budget = budget - spent
 
-        return jsonify({'salary': salary, 'budget': budget, 'remaining_budget': remaining_budget}), 200
+        return jsonify({'salary': salary, 'budget': budget, 'remaining_budget': remaining_budget, 'spent': spent}), 200
     else:
         return jsonify({'message': 'Income details not found for this user'}), 404
 

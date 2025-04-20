@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [salary, setSalary] = useState(0);
   const [budget, setBudget] = useState(0);
   const [remainingBudget, setRemainingBudget] = useState(0);
+  const [spent, setSpent] = useState(0);
   const [pieChartUrl, setPieChartUrl] = useState('');
   const [barChartUrl, setBarChartUrl] = useState('');
   // const [lineChartUrl, setLineChartUrl] = useState('');
@@ -152,6 +153,7 @@ const Dashboard = () => {
         setSalary(data.salary);
         setBudget(data.budget);
         setRemainingBudget(data.remaining_budget);
+        setSpent(data.spent);
       } else {
         console.error(data.message);
       }
@@ -193,11 +195,19 @@ const Dashboard = () => {
                   <h2 className="text-2xl mt-2">{remainingBudget}</h2>
                 </div>
               </div>
+              <div className="xl:w-1/3 md:w-1/2 p-4">
+                <div className="border border-sky-400 p-6 rounded-lg">
+                  <div className="flex justify-between">
+                    <h3 className="text-base  ">Spent</h3>
+                  </div>
+                  <h2 className="text-2xl mt-2">{spent}</h2>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <div className='charts'>
+        <div className='charts p-4'>
           <h1 className='text-lg font-semibold mb-8'>Charts</h1>
           <div className='flex mb-8'>
           <div className='me-8'>{pieChartUrl ? (
