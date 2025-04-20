@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import mysql.connector
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask_cors import CORS
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app)  # Allows cross-origin requests from frontend
 # app.secret_key = 'your_secret_key'
 
@@ -203,7 +205,7 @@ def dashboard():
 
     return render_template('dashboard.html', budget=budget, remaining_budget=remaining_budget, expenses=expenses, recommendations=recommendations)
 
-
+# Add Expense 
 @app.route('/add-expense', methods=['POST'])
 def add_expense():
     data = request.get_json()
@@ -234,6 +236,7 @@ def add_expense():
 #         conn.commit()
 #     return redirect(url_for('dashboard'))
 
+# Get Expense 
 @app.route('/get-expenses/<user_id>', methods=['GET'])
 def get_expenses(user_id):
     try:
@@ -258,7 +261,7 @@ def get_expenses(user_id):
         print("Error fetching expenses:", e)
         return jsonify({"message": "Failed to fetch expenses"}), 500
 
-
+# Update salary 
 @app.route('/update-salary', methods=['PATCH'])
 def update_salary():
     data = request.get_json()
@@ -284,7 +287,7 @@ def update_salary():
     conn.commit()
     return jsonify({'message': 'Salary updated successfully'}), 200
 
-
+# Update budget 
 @app.route('/update-budget', methods=['PATCH'])
 def update_budget():
     data = request.get_json()
@@ -310,7 +313,7 @@ def update_budget():
     conn.commit()
     return jsonify({'message': 'Budget updated successfully'}), 200
 
-
+# fetch salary and budget 
 @app.route('/get-income', methods=['POST'])
 def get_income():
     data = request.get_json()
@@ -325,23 +328,112 @@ def get_income():
         return jsonify({'message': 'Income details not found for this user'}), 404
 
 
-@app.route('/visualize')
+# fetch salary, budget and remaining budget
+@app.route('/get-remaining-budget', methods=['POST'])
+def get_remaining_budget():
+    data = request.get_json()
+    user_id = data.get('userId')
+    cursor.execute("SELECT salary, budget FROM income WHERE user_id = %s", (user_id,))
+    income_data = cursor.fetchone()
+
+    if income_data:
+        salary, budget = income_data
+
+        cursor.execute('SELECT SUM(amount) FROM expenses WHERE user_id=%s', (user_id,))
+        total_expenses_result = cursor.fetchone()
+        spent = total_expenses_result[0] if total_expenses_result and total_expenses_result[0] else 0
+
+        remaining_budget = budget - spent
+
+        return jsonify({'salary': salary, 'budget': budget, 'remaining_budget': remaining_budget}), 200
+    else:
+        return jsonify({'message': 'Income details not found for this user'}), 404
+
+# Get recommendations 
+# @app.route('/recommendations/<user_id>', methods=['GET'])
+# def get_recommendations(user_id):
+#     try:
+#         user_id = int(user_id)  # Ensure it's an integer
+
+#         cursor.execute("SELECT salary, budget FROM income WHERE user_id = %s", (user_id,))
+#         income_data = cursor.fetchone()
+
+#         if income_data:
+#             salary, budget = income_data
+            
+#             # Calculate total expenses
+#             # cursor.execute('SELECT SUM(amount) FROM expenses WHERE user_id=%s', (user_id,))
+#             # total_expenses_result = cursor.fetchone()
+#             # total_expenses = total_expenses_result[0] if total_expenses_result and total_expenses_result[0] else 0
+            
+#             # Calculate remaining budget
+#             # remaining_budget = budget - total_expenses
+
+#             # Find the category with the highest spending
+#             # cursor.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1', (user_id,))
+#             # top_category = cursor.fetchone()
+#             # highest_spending_category = top_category[0] if top_category else None
+#             # highest_spending_amount = top_category[1] if top_category else 0
+
+
+#             recommendations = []
+
+#             # if remaining_budget > (0.3 * budget):  # If more than 30% of budget is left
+#             #     recommendations.append("✅ You have a good amount left in your budget! Consider saving or investing in mutual funds, stocks, or an emergency fund.")
+
+#             # if remaining_budget < 0:  # If budget is exceeded
+#             #     recommendations.append("⚠️ You have exceeded your budget! Try to cut down on unnecessary expenses like dining out or impulse shopping.")
+
+#             # if highest_spending_category and total_expenses > 0 and highest_spending_amount > (0.5 * total_expenses):
+#             #     recommendations.append(f"🔍 You are spending a lot on {highest_spending_category}. Consider reducing these expenses to balance your budget.")
+
+#             return jsonify({'recommendations': recommendations}), 200
+#         else:
+#             return jsonify({'message': 'Income details not found for this user'}), 404
+
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
+@app.route('/visualize', methods=['POST'])
 def visualize():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    cursor.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category', (session['user_id'],))
-    data = cursor.fetchall()
+    try:
+        conn1 = mysql.connector.connect(host='localhost', user='root', password='sHj@6378#jw', database='finance_db_1',ssl_disabled=True)
+        cursor1 = conn1.cursor()
+        data = request.get_json()
+        user_id = data.get('userId')
 
-    categories = [row[0] for row in data]
-    amounts = [row[1] for row in data]
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
 
-    plt.figure(figsize=(8, 6))
-    plt.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=140)
-    plt.title('Expense Distribution')
-    plt.savefig('static/expense_chart.png')
-    plt.close()
+        cursor1.execute('SELECT category, SUM(amount) FROM expenses WHERE user_id=%s GROUP BY category',(user_id,))
+        result = cursor1.fetchall()
+        print("DB Result:", result)
 
-    return render_template('visualization.html', chart='static/expense_chart.png')
+        if not result or all(len(row) < 2 for row in result):
+            return jsonify({'error': 'No expense data found for this user'}), 404
+
+        categories = [row[0] for row in result if row and len(row) > 1]
+        amounts = [row[1] for row in result if row and len(row) > 1]
+
+        plt.figure(figsize=(8, 6))
+        plt.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=140)
+        plt.title('Expense Distribution')
+        os.makedirs('static', exist_ok=True)
+        chart_path = 'static/expense_chart-'+user_id+'.png'
+        plt.savefig(chart_path)
+        plt.close()
+
+        # Step 4: Close connection
+        cursor1.close()
+        conn1.close()
+
+        return jsonify({'chart_url': '/static/expense_chart-'+user_id+'.png'})
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'error': str(e)}), 500
+
+
 
 # @app.route('/logout')
 # def logout():
